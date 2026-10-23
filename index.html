@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171717">
+  <title>KAT CAFE RESTAURANT | Order Online</title>
+  <meta name="description" content="Browse the KAT CAFE RESTAURANT menu and order online or through WhatsApp.">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    :root {
+      /* Change these variables to match the existing website's exact brand colors. */
+      --brand: #f97316;
+      --brand-dark: #c2410c;
+      --ink: #171717;
+      --muted: #737373;
+      --paper: #fffaf5;
+      --card: #ffffff;
+      --line: #eee5dc;
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif; color:var(--ink); background:var(--paper); }
+    button,input,textarea,select { font:inherit; }
+    button { cursor:pointer; }
+    .topbar { background:var(--ink); color:white; padding:12px 18px; text-align:center; font-size:.88rem; }
+    header { background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:5; }
+    .nav { max-width:1100px; margin:auto; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:900; letter-spacing:.02em; }
+    .logo { width:44px; height:44px; display:grid; place-items:center; border-radius:14px; background:var(--brand); color:#fff; font-weight:1000; }
+    .brand small { display:block; color:var(--muted); font-size:.7rem; letter-spacing:.12em; }
+    .cart-pill { border:0; border-radius:999px; background:var(--ink); color:white; padding:11px 15px; font-weight:800; }
+    main { max-width:1100px; margin:auto; padding:22px 18px 70px; }
+    .hero { min-height:300px; border-radius:26px; padding:clamp(24px,5vw,52px); display:flex; align-items:center; background:linear-gradient(110deg,rgba(23,23,23,.95),rgba(23,23,23,.65)), url('') center/cover; color:white; overflow:hidden; }
+    .hero-content { max-width:620px; }
+    .eyebrow { color:#fed7aa; font-size:.8rem; font-weight:900; letter-spacing:.16em; text-transform:uppercase; }
+    h1 { font-size:clamp(2.2rem,6vw,4.3rem); line-height:1.02; margin:12px 0; letter-spacing:-.04em; }
+    .hero p { color:#f5f5f5; max-width:540px; line-height:1.6; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; border:0; border-radius:12px; padding:12px 16px; font-weight:800; text-decoration:none; }
+    .primary { background:var(--brand); color:white; }
+    .secondary { background:white; color:var(--ink); }
+    .section-head { display:flex; align-items:end; justify-content:space-between; gap:12px; margin:32px 0 16px; }
+    h2 { margin:0; font-size:1.6rem; letter-spacing:-.03em; }
+    .muted { color:var(--muted); }
+    .search { width:min(100%,280px); border:1px solid var(--line); background:white; border-radius:12px; padding:12px 14px; }
+    .categories { display:flex; gap:8px; overflow:auto; padding-bottom:6px; }
+    .chip { white-space:nowrap; border:1px solid var(--line); background:white; border-radius:999px; padding:9px 14px; }
+    .chip.active { background:var(--ink); color:white; border-color:var(--ink); }
+    .menu-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-top:16px; }
+    .food-card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; }
+    .food-image { width:100%; aspect-ratio: 16/10; object-fit:cover; background:#f1e8df; }
+    .food-body { padding:15px; display:flex; flex-direction:column; gap:8px; flex:1; }
+    .food-title { font-weight:850; font-size:1.02rem; }
+    .food-description { color:var(--muted); font-size:.88rem; line-height:1.45; min-height:2.5em; }
+    .food-bottom { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:auto; }
+    .price { font-weight:900; font-size:1.05rem; }
+    .add { border:0; border-radius:10px; background:var(--brand); color:white; padding:9px 13px; font-weight:900; }
+    .empty { grid-column:1/-1; background:white; padding:26px; border:1px dashed var(--line); border-radius:16px; text-align:center; color:var(--muted); }
+    .info-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:30px; }
+    .info { padding:18px; background:white; border:1px solid var(--line); border-radius:16px; }
+    .info strong { display:block; margin-bottom:5px; }
+    footer { background:var(--ink); color:#fff; padding:24px 18px; text-align:center; }
+    .modal-backdrop { position:fixed; inset:0; background:#0009; z-index:20; display:none; align-items:flex-end; justify-content:center; }
+    .modal-backdrop.open { display:flex; }
+    .modal { width:min(100%,600px); max-height:92vh; overflow:auto; background:white; border-radius:22px 22px 0 0; padding:22px; }
+    .modal-head { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .close { border:0; background:#f5f5f5; border-radius:10px; padding:8px 12px; }
+    .cart-list { display:grid; gap:12px; margin:18px 0; }
+    .cart-row { display:flex; align-items:center; justify-content:space-between; gap:10px; border-bottom:1px solid var(--line); padding-bottom:10px; }
+    .qty { display:flex; align-items:center; gap:8px; }
+    .qty button { width:30px; height:30px; border:1px solid var(--line); background:white; border-radius:8px; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .field { display:grid; gap:6px; margin-bottom:12px; }
+    .field.full { grid-column:1/-1; }
+    .field label { font-size:.85rem; font-weight:800; }
+    .field input,.field textarea,.field select { width:100%; padding:12px; border:1px solid var(--line); border-radius:10px; }
+    .total { display:flex; justify-content:space-between; font-size:1.1rem; font-weight:900; padding:14px 0; }
+    .notice { background:#fff7ed; color:#9a3412; border-radius:10px; padding:12px; font-size:.85rem; line-height:1.5; margin:10px 0; }
+    .hidden { display:none!important; }
+    @media (max-width:760px) { .menu-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .info-grid { grid-template-columns:1fr; } }
+    @media (max-width:480px) { .menu-grid { grid-template-columns:1fr 1fr; gap:9px; } .food-body { padding:11px; } .food-description { font-size:.8rem; } .food-title { font-size:.92rem; } .add { padding:8px 10px; } .section-head { align-items:start; flex-direction:column; } .search { width:100%; } .form-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">KAT CAFE RESTAURANT · Fresh food, easy ordering</div>
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <!-- Replace this block with the existing logo image if your website already has one. -->
+        <div class="logo">KAT</div>
+        <div>KAT CAFE <small>RESTAURANT</small></div>
+      </div>
+      <button class="cart-pill" id="open-cart">🛒 Cart <span id="cart-count">0</span></button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <div class="eyebrow">Welcome to KAT CAFE</div>
+        <h1>Your cravings.<br>Our kitchen.</h1>
+        <p>Explore the menu and place your order online, or send your order directly through WhatsApp.</p>
+        <div class="actions">
+          <a class="btn primary" href="#menu">Explore Menu ↓</a>
+          <button class="btn secondary" id="hero-whatsapp">Order on WhatsApp ↗</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="menu">
+      <div class="section-head">
+        <div><h2>Our Menu</h2><div class="muted">Menu and prices will appear here once confirmed by the restaurant.</div></div>
+        <input class="search" id="search" placeholder="Search menu…" aria-label="Search menu">
+      </div>
+      <div class="categories" id="categories"></div>
+      <div class="menu-grid" id="menu-grid">
+        <div class="empty">Connecting to the menu…</div>
+      </div>
+    </section>
+
+    <section class="info-grid">
+      <div class="info"><strong>📍 Visit us</strong><span class="muted">Nellore Road, Madakalavaripalle / Chinthaputhayapalli, Badvel, Andhra Pradesh 516227.</span></div>
+      <div class="info"><strong>🛍️ Order your way</strong><span class="muted">Use the online cart or send your order through WhatsApp.</span></div>
+      <div class="info"><strong>☎️ Contact</strong><span class="muted">Restaurant phone and WhatsApp number must be added after the owner confirms them.</span></div>
+    </section>
+  </main>
+
+  <footer>© <span id="year"></span> KAT CAFE RESTAURANT · Badvel</footer>
+
+  <div class="modal-backdrop" id="cart-modal" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+    <div class="modal">
+      <div class="modal-head"><div><h2 id="cart-title">Your Order</h2><span class="muted">Review your items before checkout.</span></div><button class="close" id="close-cart">Close ✕</button></div>
+      <div id="cart-list" class="cart-list"></div>
+      <div class="total"><span>Total</span><span id="cart-total">₹0</span></div>
+      <form id="checkout-form">
+        <div class="form-grid">
+          <div class="field"><label for="customer-name">Your name *</label><input id="customer-name" required maxlength="80" autocomplete="name"></div>
+          <div class="field"><label for="customer-phone">Phone number *</label><input id="customer-phone" required inputmode="tel" maxlength="15" autocomplete="tel"></div>
+          <div class="field full"><label for="fulfilment">Order type *</label><select id="fulfilment" required><option value="Takeaway">Takeaway</option><option value="Delivery">Delivery (confirm availability with restaurant)</option><option value="Dine-in">Dine-in</option></select></div>
+          <div class="field full"><label for="customer-address">Address / delivery instructions</label><textarea id="customer-address" rows="2" maxlength="300" placeholder="Required if delivery is available"></textarea></div>
+          <div class="field full"><label for="customer-notes">Notes (optional)</label><textarea id="customer-notes" rows="2" maxlength="300" placeholder="Any special instructions"></textarea></div>
+        </div>
+        <div class="notice">Online payment is available only after Supabase and Razorpay are configured. Payment is verified securely by the server. Delivery availability must be confirmed by the restaurant.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" id="pay-razorpay">Pay online with Razorpay</button>
+          <button type="button" class="btn secondary" id="whatsapp-submit">Send via WhatsApp</button>
+        </div>
+        <p id="checkout-status" class="muted" role="status"></p>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+    // Fill these using Supabase Project Settings. Never put a secret/service-role key here.
+    const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
+    const SUPABASE_PUBLISHABLE_KEY = 'YOUR_SUPABASE_PUBLISHABLE_KEY';
+
+    // Use the restaurant owner's verified WhatsApp number in international format, digits only.
+    // Example format only: 91XXXXXXXXXX. Do not leave the placeholder for production.
+    const RESTAURANT_WHATSAPP = 'REPLACE_WITH_VERIFIED_WHATSAPP_NUMBER';
+
+    const configured = SUPABASE_URL.startsWith('https://') &&
+      !SUPABASE_URL.includes('YOUR_') &&
+      SUPABASE_PUBLISHABLE_KEY && !SUPABASE_PUBLISHABLE_KEY.includes('YOUR_');
+    const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
+
+    let menuItems = [];
+    let cart = [];
+    let activeCategory = 'All';
+
+    const money = amount => new Intl.NumberFormat('en-IN', { style:'currency', currency:'INR', maximumFractionDigits:2 }).format(Number(amount || 0));
+    const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const validWhatsApp = () => /^\d{10,15}$/.test(RESTAURANT_WHATSAPP);
+
+    function openWhatsApp(message) {
+      if (!validWhatsApp()) {
+        alert('WhatsApp ordering is not configured yet. Ask the restaurant owner for the verified WhatsApp number.');
+        return;
+      }
+      window.open(`https://wa.me/${RESTAURANT_WHATSAPP}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+    }
+
+    function orderText(orderId = '') {
+      const name = document.querySelector('#customer-name').value.trim();
+      const phone = document.querySelector('#customer-phone').value.trim();
+      const type = document.querySelector('#fulfilment').value;
+      const address = document.querySelector('#customer-address').value.trim();
+      const notes = document.querySelector('#customer-notes').value.trim();
+      const lines = cart.map(item => `• ${item.name} x ${item.qty} — ${money(item.price * item.qty)}`).join('\n');
+      return `Hello KAT CAFE RESTAURANT, I would like to place an order.\n${orderId ? `Order reference: ${orderId}\n` : ''}\n${lines}\n\nTotal: ${money(cart.reduce((sum,item)=>sum+item.price*item.qty,0))}\nName: ${name}\nPhone: ${phone}\nOrder type: ${type}\n${address ? `Address/instructions: ${address}\n` : ''}${notes ? `Notes: ${notes}\n` : ''}\nPlease confirm availability and final amount.`;
+    }
+
+    function categories() {
+      const list = ['All', ...new Set(menuItems.map(item => item.category).filter(Boolean))];
+      document.querySelector('#categories').innerHTML = list.map(category =>
+        `<button class="chip ${category===activeCategory?'active':''}" data-category="${escapeHtml(category)}">${escapeHtml(category)}</button>`
+      ).join('');
+    }
+
+    function renderMenu() {
+      const search = document.querySelector('#search').value.trim().toLowerCase();
+      const filtered = menuItems.filter(item =>
+        (activeCategory === 'All' || item.category === activeCategory) &&
+        `${item.name} ${item.description || ''} ${item.category || ''}`.toLowerCase().includes(search)
+      );
+      const grid = document.querySelector('#menu-grid');
+      if (!filtered.length) {
+        grid.innerHTML = `<div class="empty">${menuItems.length ? 'No matching menu items.' : 'The menu has not been published yet. Please check back soon.'}</div>`;
+        return;
+      }
+      grid.innerHTML = filtered.map(item => `
+        <article class="food-card">
+          ${item.image_url ? `<img class="food-image" loading="lazy" src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.name)}">` : `<div class="food-image" aria-label="Food image unavailable"></div>`}
+          <div class="food-body">
+            <div class="food-title">${escapeHtml(item.name)}</div>
+            <div class="food-description">${escapeHtml(item.description || '')}</div>
+            <div class="food-bottom"><span class="price">${money(item.price)}</span><button class="add" data-add="${escapeHtml(item.id)}">+ Add</button></div>
+          </div>
+        </article>`).join('');
+    }
+
+    function updateCart() {
+      document.querySelector('#cart-count').textContent = cart.reduce((sum,item)=>sum+item.qty,0);
+      document.querySelector('#cart-total').textContent = money(cart.reduce((sum,item)=>sum+item.price*item.qty,0));
+      const list = document.querySelector('#cart-list');
+      if (!cart.length) {
+        list.innerHTML = '<div class="empty">Your cart is empty. Add something from the menu.</div>';
+        document.querySelector('#pay-razorpay').disabled = true;
+        document.querySelector('#whatsapp-submit').disabled = true;
+      } else {
+        list.innerHTML = cart.map(item => `
+          <div class="cart-row">
+            <div><strong>${escapeHtml(item.name)}</strong><div class="muted">${money(item.price)} each</div></div>
+            <div class="qty"><button type="button" data-minus="${escapeHtml(item.id)}" aria-label="Remove one">−</button><strong>${item.qty}</strong><button type="button" data-plus="${escapeHtml(item.id)}" aria-label="Add one">+</button></div>
+          </div>`).join('');
+        document.querySelector('#pay-razorpay').disabled = false;
+        document.querySelector('#whatsapp-submit').disabled = false;
+      }
+    }
+
+    function addItem(id) {
+      const item = menuItems.find(item => String(item.id) === String(id));
+      if (!item) return;
+      const existing = cart.find(entry => String(entry.id) === String(id));
+      if (existing) existing.qty++;
+      else cart.push({ id:item.id, name:item.name, price:Number(item.price), qty:1 });
+      updateCart();
+    }
+
+    async function loadMenu() {
+      if (!supabase) {
+        document.querySelector('#menu-grid').innerHTML = '<div class="empty">Setup required: add the Supabase project URL and publishable key in this file, then publish verified menu items in Supabase.</div>';
+        return;
+      }
+      const { data, error } = await supabase.from('menu_items')
+        .select('id,name,description,category,price,image_url,is_available')
+        .eq('is_available', true).order('category').order('name');
+      if (error) {
+        document.querySelector('#menu-grid').innerHTML = '<div class="empty">The menu could not load. Please try again later or contact the restaurant.</div>';
+        console.error('Menu load failed:', error.message);
+        return;
+      }
+      menuItems = data || [];
+      categories();
+      renderMenu();
+    }
+
+    document.querySelector('#year').textContent = new Date().getFullYear();
+    document.querySelector('#open-cart').addEventListener('click', () => { document.querySelector('#cart-modal').classList.add('open'); updateCart(); });
+    document.querySelector('#close-cart').addEventListener('click', () => document.querySelector('#cart-modal').classList.remove('open'));
+    document.querySelector('#cart-modal').addEventListener('click', event => { if (event.target.id === 'cart-modal') event.currentTarget.classList.remove('open'); });
+    document.querySelector('#search').addEventListener('input', renderMenu);
+    document.querySelector('#categories').addEventListener('click', event => {
+      const button = event.target.closest('[data-category]');
+      if (!button) return;
+      activeCategory = button.dataset.category;
+      categories(); renderMenu();
+    });
+    document.querySelector('#menu-grid').addEventListener('click', event => {
+      const button = event.target.closest('[data-add]');
+      if (button) addItem(button.dataset.add);
+    });
+    document.querySelector('#cart-list').addEventListener('click', event => {
+      const plus = event.target.closest('[data-plus]');
+      const minus = event.target.closest('[data-minus]');
+      if (plus) { const item=cart.find(entry=>String(entry.id)===plus.dataset.plus); if(item)item.qty++; }
+      if (minus) { const item=cart.find(entry=>String(entry.id)===minus.dataset.minus); if(item)item.qty--; cart=cart.filter(entry=>entry.qty>0); }
+      updateCart();
+    });
+    document.querySelector('#hero-whatsapp').addEventListener('click', () => {
+      openWhatsApp('Hello KAT CAFE RESTAURANT, please share your current menu and ordering details.');
+    });
+    document.querySelector('#whatsapp-submit').addEventListener('click', () => {
+      if (!cart.length) return;
+      if (!document.querySelector('#checkout-form').reportValidity()) return;
+      openWhatsApp(orderText());
+    });
+
+    function getCustomerDetails() {
+      return {
+        name: document.querySelector('#customer-name').value.trim(),
+        phone: document.querySelector('#customer-phone').value.trim(),
+        fulfilment: document.querySelector('#fulfilment').value,
+        address: document.querySelector('#customer-address').value.trim(),
+        notes: document.querySelector('#customer-notes').value.trim()
+      };
+    }
+
+    function validateCheckout() {
+      if (!cart.length) return false;
+      if (!document.querySelector('#checkout-form').reportValidity()) return false;
+      const customer = getCustomerDetails();
+      if (customer.fulfilment === 'Delivery' && !customer.address) {
+        document.querySelector('#checkout-status').textContent = 'Please enter the delivery address. Delivery availability must be confirmed by the restaurant.';
+        return false;
+      }
+      if (!supabase) {
+        document.querySelector('#checkout-status').textContent = 'Setup required: configure Supabase URL and publishable key first.';
+        return false;
+      }
+      return true;
+    }
+
+    document.querySelector('#pay-razorpay').addEventListener('click', async () => {
+      if (!validateCheckout()) return;
+      if (!window.Razorpay) {
+        document.querySelector('#checkout-status').textContent = 'Razorpay Checkout did not load. Check your internet connection and try again.';
+        return;
+      }
+      const button = document.querySelector('#pay-razorpay');
+      button.disabled = true;
+      document.querySelector('#checkout-status').textContent = 'Creating a secure payment order…';
+      const customer = getCustomerDetails();
+
+      try {
+        const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
+          body: {
+            customer_name: customer.name,
+            customer_phone: customer.phone,
+            fulfilment: customer.fulfilment,
+            address: customer.address || null,
+            notes: customer.notes || null,
+            items: cart.map(item => ({ menu_item_id: item.id, quantity: item.qty }))
+          }
+        });
+        if (error) throw new Error(error.message || 'Could not create payment order.');
+        if (!data || !data.razorpay_order_id || !data.key_id || !data.app_order_id) {
+          throw new Error('The server returned an incomplete payment order.');
+        }
+
+        const checkout = new window.Razorpay({
+          key: data.key_id,
+          amount: data.amount,
+          currency: data.currency || 'INR',
+          name: 'KAT CAFE RESTAURANT',
+          description: 'Restaurant order payment',
+          order_id: data.razorpay_order_id,
+          prefill: { name: customer.name, contact: customer.phone },
+          notes: { app_order_id: data.app_order_id },
+          theme: { color: '#f97316' },
+          handler: async function (response) {
+            document.querySelector('#checkout-status').textContent = 'Verifying payment with Razorpay…';
+            try {
+              const { data: verified, error: verifyError } = await supabase.functions.invoke('verify-razorpay-payment', {
+                body: {
+                  app_order_id: data.app_order_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature
+                }
+              });
+              if (verifyError) throw new Error(verifyError.message || 'Payment verification failed.');
+              if (!verified || verified.verified !== true || verified.payment_status !== 'paid') {
+                throw new Error('Payment is not confirmed yet. Please contact the restaurant before retrying.');
+              }
+              document.querySelector('#checkout-status').textContent = `Payment successful! Order reference: ${data.app_order_id}.`;
+              if (validWhatsApp()) {
+                openWhatsApp(`Hello KAT CAFE RESTAURANT, I paid online.\nOrder reference: ${data.app_order_id}\nPayment ID: ${response.razorpay_payment_id}\nName: ${customer.name}\nPhone: ${customer.phone}\nPlease confirm my order.`);
+              }
+              cart = [];
+              updateCart();
+            } catch (err) {
+              console.error('Payment verification issue:', err);
+              document.querySelector('#checkout-status').textContent = 'We could not confirm payment in this browser. Do not pay again immediately. Contact the restaurant with your Razorpay payment ID and order reference.';
+            } finally {
+              button.disabled = false;
+            }
+          },
+          modal: {
+            ondismiss: function () {
+              document.querySelector('#checkout-status').textContent = 'Payment window closed. If you completed a payment, wait for verification or contact the restaurant before trying again.';
+              button.disabled = false;
+            }
+          }
+        });
+        checkout.on('payment.failed', function (response) {
+          console.error('Razorpay payment failed:', response.error);
+          document.querySelector('#checkout-status').textContent = 'Payment failed or was cancelled. You can retry, but check your bank/UPI app first if money was debited.';
+          button.disabled = false;
+        });
+        checkout.open();
+      } catch (err) {
+        console.error('Create payment order failed:', err);
+        document.querySelector('#checkout-status').textContent = `Could not start payment: ${err.message}. Please try WhatsApp or contact the restaurant.`;
+        button.disabled = false;
+      }
+    });
+
+    document.querySelector('#checkout-form').addEventListener('submit', event => {
+      event.preventDefault();
+      document.querySelector('#checkout-status').textContent = 'Choose “Pay online with Razorpay” or “Send via WhatsApp”.';
+    });
+
+
+    updateCart();
+    loadMenu();
+  </script>
+</body>
+</html>
